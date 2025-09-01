@@ -26,7 +26,7 @@ public class TodoService {
     }
 
     public Todo save(Todo todo) {
-        return repository.save(todo);
+        return repository.save(todo); // insertion dans la base
     }
 
     public Todo update(Integer id, Todo updatedTodo) {
