@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Todo List</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background-color: #f0f2f5;
+        }
+        h1 {
+            text-align: center;
+        }
+        #todo-form {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+        }
+        #todo-list .todo {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #fff;
+            padding: 10px 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        #todo-list .todo.done {
+            background-color: #d4edda;
+        }
+        #todo-list .todo.not-done {
+            background-color: #f8d7da;
+        }
+        button {
+            cursor: pointer;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+        .update-btn {
+            background-color: #007bff;
+            color: white;
+        }
+        .delete-btn {
+            background-color: #dc3545;
+            color: white;
+        }
+        .create-btn {
+            background-color: #28a745;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+<h1>Todo List</h1>
+
+<div id="todo-form">
+    <input type="text" id="title" placeholder="Title">
+    <input type="text" id="description" placeholder="Description">
+    <label>
+        Done:
+        <input type="checkbox" id="done">
+    </label>
+    <button class="create-btn" onclick="createTodo()">Create</button>
+</div>
+
+<div id="todo-list"></div>
+
+<script>
+    const API_URL = "http://localhost:8080/todos";
+
+    function fetchTodos() {
+        fetch(API_URL)
+            .then(response => response.json())
+            .then(todos => {
+                const list = document.getElementById('todo-list');
+                list.innerHTML = '';
+                todos.forEach(todo => {
+                    const div = document.createElement('div');
+                    div.className = 'todo ' + (todo.done ? 'done' : 'not-done');
+
+                    div.innerHTML = `
+                            <div style="flex:1;">
+                                <strong>${todo.title}</strong><br>
+                                <span>${todo.description}</span>
+                            </div>
+                            <div style="display:flex; align-items:center; gap:5px;">
+                                <label>
+                                    Done:
+                                    <input type="checkbox" ${todo.done ? 'checked' : ''} onchange="toggleDone(${todo.id}, this.checked)">
+                                </label>
+                                <button class="update-btn" onclick="updateTodo(${todo.id})">Update</button>
+                                <button class="delete-btn" onclick="deleteTodo(${todo.id})">Delete</button>
+                            </div>
+                        `;
+                    list.appendChild(div);
+                });
+            });
+    }
+
+    function createTodo() {
+        const title = document.getElementById('title').value;
+        const description = document.getElementById('description').value;
+        const done = document.getElementById('done').checked;
+
+        fetch(API_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ title, description, done })
+        })
+            .then(() => {
+                document.getElementById('title').value = '';
+                document.getElementById('description').value = '';
+                document.getElementById('done').checked = false;
+                fetchTodos();
+            });
+    }
+
+    function updateTodo(id) {
+        const newTitle = prompt("New title:");
+        const newDesc = prompt("New description:");
+        const newDone = confirm("Is it done?");
+
+        fetch(`${API_URL}/${id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ title: newTitle, description: newDesc, done: newDone })
+        }).then(() => fetchTodos());
+    }
+
+    function deleteTodo(id) {
+        fetch(`${API_URL}/${id}`, { method: 'DELETE' })
+            .then(() => fetchTodos());
+    }
+
+    function toggleDone(id, done) {
+        fetch(`${API_URL}/${id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ done })
+        }).then(() => fetchTodos());
+    }
+
+    fetchTodos();
+</script>
+</body>
+</html>
