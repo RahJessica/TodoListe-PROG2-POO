@@ -20,10 +20,9 @@ public class TodoService {
         return repository.findAll();
     }
 
-    // Ajouter cette méthode pour getById
     public Todo getById(Integer id) {
         Optional<Todo> todo = repository.findById(id);
-        return todo.orElse(null); // renvoie null si pas trouvé
+        return todo.orElse(null);
     }
 
     public Todo save(Todo todo) {

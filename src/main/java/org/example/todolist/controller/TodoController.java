@@ -2,6 +2,7 @@ package org.example.todolist.controller;
 
 import org.example.todolist.entity.Todo;
 import org.example.todolist.service.TodoService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -54,12 +55,13 @@ public class TodoController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteTodo(@PathVariable Integer id) {
+    public ResponseEntity<String> deleteTodo(@PathVariable Integer id) {
         boolean deleted = service.delete(id);
         if (deleted) {
-            return ResponseEntity.noContent().build();
+            return ResponseEntity.ok("Todo successfully deleted");
         } else {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("Todo not found");
         }
     }
 }
