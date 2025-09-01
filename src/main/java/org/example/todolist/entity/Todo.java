@@ -1,22 +1,26 @@
 package org.example.todolist.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.ToString;
+import jakarta.persistence.*;
+import lombok.*;
 
 import java.time.Instant;
 
-@AllArgsConstructor
+@Entity
 @Getter
-@EqualsAndHashCode
+@Setter
+@NoArgsConstructor          // Constructeur vide pour JPA
+@AllArgsConstructor         // Constructeur avec tous les champs
 @ToString
-
+@EqualsAndHashCode
 public class Todo {
-    private final int id;
-    private final String title;
-    private final String description;
-    private final Instant startDateTime;
-    private final Instant endDateTime;
-    private final boolean done;
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY) // Auto-incrément
+    private Integer id;
+
+    private String title;
+    private String description;
+    private Instant startDateTime;
+    private Instant endDateTime;
+    private boolean done;
 }
