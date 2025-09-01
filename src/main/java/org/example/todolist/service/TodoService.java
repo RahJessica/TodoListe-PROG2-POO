@@ -5,6 +5,7 @@ import org.example.todolist.repository.TodoRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class TodoService {
@@ -19,15 +20,35 @@ public class TodoService {
         return repository.findAll();
     }
 
+    // Ajouter cette méthode pour getById
+    public Todo getById(Integer id) {
+        Optional<Todo> todo = repository.findById(id);
+        return todo.orElse(null); // renvoie null si pas trouvé
+    }
+
     public Todo save(Todo todo) {
         return repository.save(todo);
     }
 
-    public void delete(int id) {
-        repository.deleteById(id);
+    public Todo update(Integer id, Todo updatedTodo) {
+        return repository.findById(id)
+                .map(todo -> {
+                    todo.setTitle(updatedTodo.getTitle());
+                    todo.setDescription(updatedTodo.getDescription());
+                    todo.setStartDateTime(updatedTodo.getStartDateTime());
+                    todo.setEndDateTime(updatedTodo.getEndDateTime());
+                    todo.setDone(updatedTodo.isDone());
+                    return repository.save(todo);
+                })
+                .orElse(null);
     }
 
-    public Todo update(Todo todo) {
-        return repository.save(todo);
+    public boolean delete(Integer id) {
+        if (repository.existsById(id)) {
+            repository.deleteById(id);
+            return true;
+        } else {
+            return false;
+        }
     }
 }

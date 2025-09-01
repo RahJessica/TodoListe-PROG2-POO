@@ -3,18 +3,16 @@ package org.example.todolist.controller;
 import org.example.todolist.entity.Todo;
 import org.example.todolist.service.TodoService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
+@RequestMapping("/todos")
 public class TodoController {
 
     private final TodoService service;
 
-    // Spring va automatiquement injecter le repository dans le service
     public TodoController(TodoService service) {
         this.service = service;
     }
@@ -24,16 +22,42 @@ public class TodoController {
         return "pong";
     }
 
-    @GetMapping("/todos")
+    @GetMapping
     public List<Todo> getAllTodos() {
         return service.getAll();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Todo> getTodoById(@PathVariable Long id) {
+    public ResponseEntity<Todo> getTodoById(@PathVariable Integer id) {
         Todo todo = service.getById(id);
         if (todo != null) {
             return ResponseEntity.ok(todo);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @PostMapping
+    public ResponseEntity<Todo> createTodo(@RequestBody Todo newTodo) {
+        Todo savedTodo = service.save(newTodo);
+        return ResponseEntity.ok(savedTodo);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Todo> updateTodo(@PathVariable Integer id, @RequestBody Todo updatedTodo) {
+        Todo todo = service.update(id, updatedTodo);
+        if (todo != null) {
+            return ResponseEntity.ok(todo);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteTodo(@PathVariable Integer id) {
+        boolean deleted = service.delete(id);
+        if (deleted) {
+            return ResponseEntity.noContent().build();
         } else {
             return ResponseEntity.notFound().build();
         }
